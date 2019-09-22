@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using RestfulCatApi.Models;
 
 namespace RestfulCatApi.Controllers
 {
@@ -26,7 +27,7 @@ namespace RestfulCatApi.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody] string value)
+        public void Post([FromBody] Value value)
         {
         }
 
