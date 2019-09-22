@@ -40,5 +40,12 @@ namespace RestfulCatApi.Controllers
             return service.GetCat(id);
         }
 
+        // POST api/cats
+        [HttpPost("api/cats")]
+        public void PostCatToRandomOwner([FromBody] Cat cat)
+        {
+            service.AddCatToOwner(cat);
+        }
+
     }
 }

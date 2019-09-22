@@ -77,7 +77,7 @@ namespace RestfulCatApi.Services
             owner.MyCats.Add(cat);
         }
 
-        public Cat GetCat (int id)
+        public Cat GetCat(int id)
         {
             foreach (Owner owner in myOwners)
             {
@@ -93,5 +93,11 @@ namespace RestfulCatApi.Services
             return null;
         }
 
+        public void AddCatToOwner(Cat cat)
+        {
+            Random someOwner = new Random();
+            int ID = someOwner.Next(1, 3);
+            AddCat(cat,ID);
+        }
     }
 }
