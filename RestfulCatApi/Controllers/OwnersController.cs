@@ -35,7 +35,7 @@ namespace RestfulCatApi.Controllers
 
         // GET api/owners/5
         [HttpGet("{id}")]
-        public ActionResult<Owner> Get(int id)
+        public ActionResult<Owner> Get(string id)
         {
             Owner myOwner = service.GetOwner(id);
 

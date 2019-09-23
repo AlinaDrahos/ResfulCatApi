@@ -1,4 +1,6 @@
-﻿using RestfulCatApi.Models;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
+using RestfulCatApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,78 +10,68 @@ namespace RestfulCatApi.Services
 {
     public class CatService
     {
-        public static List<Owner> myOwners = new List<Owner>()
-            {
-                new Owner(){
-                    Id = 1,
-                    Name ="Jon",
-                    Age =31,
-                    MyCats = new List<Cat>(){
-                        new Cat()
-                        {
-                            Age = 5,
-                            Id = 1,
-                            Name = "Atticus",
-                            Type = "Gray Stripes"
-                        }
-                    }
-                },
-                new Owner(){
-                    Id = 2,
-                    Name ="Alina",
-                    Age =31,
-                    MyCats = new List<Cat>
-                    {
-                        new Cat
-                        {
-                            Id= 2,
-                            Age = 10,
-                            Name = "Samantha",
-                            Type = "Calico"
-                        }
-                    }
-                },
-            };
-
-
         public List<Owner> GetOwners()
         {
-            return myOwners;
+            MongoClient client = new MongoClient("mongodb://localhost:27017");
+            IMongoDatabase db = client.GetDatabase("Cats");
+            var collection = db.GetCollection<Owner>("Owners");
+
+            BsonDocument filter = new BsonDocument();
+            return collection.Find(filter).ToList();
+
         }
 
         public void AddOwner(Owner owner)
         {
-            myOwners.Add(owner);
-        }
+            MongoClient client = new MongoClient("mongodb://localhost:27017");
+            IMongoDatabase db = client.GetDatabase("Cats");
+            var collection = db.GetCollection<Owner>("Owners");
 
-        public Owner GetOwner(int id)
-        {
-            foreach (Owner owner in myOwners)
+            owner.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
+            foreach (Cat cat in owner.MyCats)
             {
-                if (id == owner.Id)
-                {
-                    return owner;
-                }
+                cat.Id = MongoDB.Bson.ObjectId.GenerateNewId().ToString();
             }
-
-            return null;
+            collection.InsertOne(owner);
         }
 
-        public List<Cat> GetCatsforOwner(int ownerId)
+        public Owner GetOwner(string id)
+        {
+            MongoClient client = new MongoClient("mongodb://localhost:27017");
+            IMongoDatabase db = client.GetDatabase("Cats");
+            var collection = db.GetCollection<Owner>("Owners");
+
+            BsonDocument filter = new BsonDocument();
+            filter.Add("_id", BsonValue.Create(ObjectId.Parse(id)));
+
+            return collection.Find(filter).ToList()[0];
+        }
+
+        public List<Cat> GetCatsforOwner(string ownerId)
         {
             Owner owner = GetOwner(ownerId);
             return owner.MyCats;
         }
 
-        public void AddCat(Cat cat, int ownerId)
+        public void AddCat(Cat cat, string ownerId)
         {
             Owner owner = GetOwner(ownerId);
             owner.MyCats.Add(cat);
+
+            MongoClient client = new MongoClient("mongodb://localhost:27017");
+            IMongoDatabase db = client.GetDatabase("Cats");
+            var collection = db.GetCollection<Owner>("Owners");
+
+            BsonDocument filter = new BsonDocument();
+            filter.Add("_id", BsonValue.Create(ObjectId.Parse(ownerId)));
+
+            collection.ReplaceOne(filter, owner);
         }
 
-        public Cat GetCat(int id)
+        public Cat GetCat(string id)
         {
-            foreach (Owner owner in myOwners)
+
+            foreach (Owner owner in GetOwners())
             {
                 foreach (Cat cat in owner.MyCats)
                 {
@@ -96,8 +88,10 @@ namespace RestfulCatApi.Services
         public void AddCatToOwner(Cat cat)
         {
             Random someOwner = new Random();
-            int ID = someOwner.Next(1, 3);
-            AddCat(cat,ID);
+            List<Owner> myOwners = GetOwners();
+            int index = someOwner.Next(1,myOwners.Count+1);
+            Owner myOwner=myOwners[index];
+            AddCat(cat,myOwner.Id);
         }
     }
 }

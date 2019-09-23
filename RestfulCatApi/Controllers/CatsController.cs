@@ -21,21 +21,21 @@ namespace RestfulCatApi.Controllers
 
         // GET api/owners/1/cats
         [HttpGet("api/owners/{id}/cats")]
-        public ActionResult<List<Cat>> Get(int id)
+        public ActionResult<List<Cat>> Get(string id)
         {
            return service.GetCatsforOwner(id);
         }
 
         // POST api/owners/{id}/cats
         [HttpPost("api/owners/{id}/cats")]
-        public void Post([FromBody] Cat cat, int id)
+        public void Post([FromBody] Cat cat, string id)
         {
             service.AddCat(cat, id);
         }
 
         // GET api/cats/{id}
         [HttpGet("api/cats/{id}")]
-        public ActionResult<Cat> GetCat(int id)
+        public ActionResult<Cat> GetCat(string id)
         {
             return service.GetCat(id);
         }
